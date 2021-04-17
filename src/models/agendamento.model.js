@@ -4,6 +4,8 @@ const AgendamentoSchema = new mongoose.Schema(
   {
     _id: String,
     name: String,
+    data: Date,
+    hora: String,
   },
   {
     timestamps: true,
