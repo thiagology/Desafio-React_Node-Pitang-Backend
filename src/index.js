@@ -4,11 +4,7 @@ const morgan = require('morgan');
 const cors = require("cors");
 const Routes = require('./routes');
 
-require('dotenv').config();
-
-const { MONGO_URL, HTTP_PORT } = process.env;
-
-mongoose.connect(MONGO_URL, {
+mongoose.connect('mongodb://localhost:27017/pitang', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -22,9 +18,9 @@ app.use(morgan('dev'));
 app.use(Routes);
 
 app.get('/', (request, response) => {
-  response.send({ message: 'Hello World' });
+  response.send({ message: 'Hello Pitang' });
 });
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Rodando na porta ${HTTP_PORT}`);
+app.listen(3333, () => {
+  console.log('Rodando na porta 3333');
 });
