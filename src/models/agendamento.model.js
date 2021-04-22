@@ -6,7 +6,7 @@ const AgendamentoSchema = new mongoose.Schema(
     date: Date,
     hour: String,
     birth: Date,
-    isCompleted: Boolean,
+    isChecked: Boolean,
     conclusion: String
   },
   {

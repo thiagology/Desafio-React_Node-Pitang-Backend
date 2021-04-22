@@ -32,13 +32,14 @@ class AgendamentoController {
             res.send({ data: agendamento });
       
           } catch (error) {
-            res.status(400).send({ message: error.message });
+            res.status(400).json({ message: error.message });
           }
         }else{
-          res.status(400).send({ message: 'Não há vagas neste horário' });
+          res.status(400).json({ message: 'Não há mais vagas neste horário' });
+          
         }
       }else{
-        res.status(400).send({ message: 'Não há vagas neste dia' });
+        res.status(400).json({ message: 'Não há mais vagas neste dia' });
       }
       
   }
