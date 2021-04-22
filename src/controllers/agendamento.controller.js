@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 const { AgendamentoModel } = require('../models/agendamento.model');
-const { parseISO } = require('date-fns');
+const { parseISO, isAfter, differenceInYears } = require('date-fns');
 
-class AgendamentoController { 
+class AgendamentoController {
   async index(req, res) {
     try {
       const agendamentos = await AgendamentoModel.find();
@@ -16,32 +16,58 @@ class AgendamentoController {
 
 
   async store(req, res) {
-    const { date, hour } = req.body;
+    const { date, hour, birth } = req.body;
     const agendamentos = await AgendamentoModel.find();
+    const currentBirth = parseISO(birth);
     
     const agendamentosDia = agendamentos.filter((agendamento) => agendamento.date.toString() == parseISO(date));
-    console.log(agendamentosDia.length);
 
-      if(agendamentosDia.length < 20){
-        const agendamentosHora = agendamentosDia.filter((agendamentoHora) => agendamentoHora.hour == hour);
-        console.log(agendamentosHora.length);
-        if(agendamentosHora.length < 2){
-          try {
-            const agendamento = await AgendamentoModel.create(req.body);
+    // verifica se há 20 agendamentos em um dia
+    if (agendamentosDia.length < 20) {
+      const agendamentosHora = agendamentosDia.filter((agendamentoHora) => agendamentoHora.hour == hour);
       
-            res.send({ data: agendamento });
       
-          } catch (error) {
-            res.status(400).json({ message: error.message });
-          }
-        }else{
-          res.status(400).json({ message: 'Não há mais vagas neste horário' });
-          
+      //verifica se há 2 agendamentos em um horário
+      if (agendamentosHora.length < 2) {
+        try {
+          const agendamento = await AgendamentoModel.create(req.body);
+
+          res.send({ data: agendamento });
+
+        } catch (error) {c
+          res.status(400).json({ message: error.message });
         }
-      }else{
-        res.status(400).json({ message: 'Não há mais vagas neste dia' });
       }
-      
+      const oldest = agendamentosHora.sort((a, b) => Date.parse(b) - Date.parse(a)); // ordernar por idade
+      const oldestAge = differenceInYears( new Date(), oldest[0].birth); // idade do mais velho do array
+      const currentAge = differenceInYears( new Date(), currentBirth); // idade do paciente atual
+
+      // se o idoso for mais velho que agendamento mais velho
+       if( currentAge >= 60 && oldestAge < currentAge ){
+
+        //remover o mais jovem
+        const _id = oldest[0]._id;
+        console.log(_id);
+        const agendamento = await AgendamentoModel.findById(_id);
+        await agendamento.remove();
+
+        // agenda o idoso no lugar
+       try {
+          const agendamento = await AgendamentoModel.create(req.body);
+
+          res.send({ data: agendamento });
+
+        } catch (error) {
+          res.status(400).json({ message: error.message });
+        }
+      }
+       else {
+        res.status(400).json({ message: 'Não há mais vagas neste horário' });
+      }
+    } else {
+      res.status(400).json({ message: 'Não há mais vagas neste dia' });
+    }
+
   }
 
   // eslint-disable-next-line consistent-return
