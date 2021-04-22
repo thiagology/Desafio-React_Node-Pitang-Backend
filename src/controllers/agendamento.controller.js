@@ -34,9 +34,13 @@ class AgendamentoController {
           } catch (error) {
             res.status(400).send({ message: error.message });
           }
+        }else{
+          res.status(400).send({ message: 'Não há vagas neste horário' });
         }
+      }else{
+        res.status(400).send({ message: 'Não há vagas neste dia' });
       }
-    
+      
   }
 
   // eslint-disable-next-line consistent-return
